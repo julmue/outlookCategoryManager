@@ -206,6 +206,94 @@ Public Sub deleteItemCategories()
 End Sub
 
 ' ----------------------------------------------------------
+' Util: Next Action
+' Needs some refactoring
+
+Public Sub NextActionManager()
+    Dim s As String
+
+    s = InputBox("Action:", "Next Action Manager", "a")
+    s = Trim(s)
+    
+    Select Case s
+    Case "a"
+        Call setNextAction
+    Case "d"
+        Call deleteNextAction
+    Case "s"
+        Call getNextAction
+    Case ""
+        MsgBox "No Command"
+    Case Else
+        MsgBox "Unknown Command"
+    End Select
+End Sub
+
+Public Sub setNextAction()
+  Dim coll As Collection
+  Dim it As MailItem
+  Dim s As String
+
+  Set coll = getCurrentItems
+  If coll.Count = 0 Then Exit Sub
+  
+  s = InputBox("Next Action:")
+  
+  For Each it In coll
+    it.Mileage = s
+    it.Save
+  Next
+End Sub
+
+Public Sub deleteNextAction()
+  Dim coll As Collection
+  Dim it As MailItem
+
+  Set coll = getCurrentItems
+  If coll.Count = 0 Then Exit Sub
+  
+  For Each it In coll
+    it.Mileage = ""
+    it.Save
+  Next
+End Sub
+
+Public Sub getNextAction()
+  Dim coll As Collection
+  Dim it As MailItem
+  Dim s As String
+
+  Set coll = getCurrentItems
+  If coll.Count = 0 Then Exit Sub
+  
+  For Each it In coll
+    MsgBox it.Mileage
+  Next
+End Sub
+
+Public Sub moveToProc()
+    Dim objNameSpace As Outlook.NameSpace
+    Dim inbox As Outlook.Folder
+    Dim target As Outlook.Folder
+    Dim coll As Collection
+    Dim it As MailItem
+
+    Set objNameSpace = Application.GetNamespace("MAPI")
+    Set inbox = objNameSpace.GetDefaultFolder(olFolderInbox)
+    Set target = inbox.Parent.Folders("proc")
+    
+    Set coll = getCurrentItems
+    If coll.Count = 0 Then
+        Exit Sub
+    End If
+  
+    For Each it In coll
+        it.Move target
+    Next
+End Sub
+                                                        
+                                                        
+' ----------------------------------------------------------
 ' Util: Get Items in Scope
 
 Private Function getCurrentItems() As VBA.Collection
